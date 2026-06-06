@@ -1,4 +1,4 @@
-const CACHE_NAME = 'predictmaint-cache-v32';
+const CACHE_NAME = 'predictmaint-cache-v33';
 const urlsToCache = [
   './',
   'index.html',
