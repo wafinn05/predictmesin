@@ -9,61 +9,61 @@
 const TYPE_ENCODING = { H: 0, L: 1, M: 2 };
 
 // ── Gauge constants ──
-const GAUGE_RADIUS       = 60;
+const GAUGE_RADIUS = 60;
 const GAUGE_CIRCUMFERENCE = 2 * Math.PI * GAUGE_RADIUS; // 376.99
 
 // ══════════════════════════════════════════════════════════════════
 //  DOM REFERENCES
 // ══════════════════════════════════════════════════════════════════
 const refs = {
-  form:           document.getElementById('prediction-form'),
-  predictBtn:     document.getElementById('predict-btn'),
-  machineType:    document.getElementById('machine-type'),
+  form: document.getElementById('prediction-form'),
+  predictBtn: document.getElementById('predict-btn'),
+  machineType: document.getElementById('machine-type'),
 
   // Sliders and number inputs
-  airTemp:        document.getElementById('air-temp'),
-  airTempNum:     document.getElementById('air-temp-num'),
+  airTemp: document.getElementById('air-temp'),
+  airTempNum: document.getElementById('air-temp-num'),
   airTempDisplay: document.getElementById('air-temp-display'),
 
-  procTemp:        document.getElementById('proc-temp'),
-  procTempNum:     document.getElementById('proc-temp-num'),
+  procTemp: document.getElementById('proc-temp'),
+  procTempNum: document.getElementById('proc-temp-num'),
   procTempDisplay: document.getElementById('proc-temp-display'),
 
-  rpm:        document.getElementById('rpm'),
-  rpmNum:     document.getElementById('rpm-num'),
+  rpm: document.getElementById('rpm'),
+  rpmNum: document.getElementById('rpm-num'),
   rpmDisplay: document.getElementById('rpm-display'),
 
-  torque:        document.getElementById('torque'),
-  torqueNum:     document.getElementById('torque-num'),
+  torque: document.getElementById('torque'),
+  torqueNum: document.getElementById('torque-num'),
   torqueDisplay: document.getElementById('torque-display'),
 
-  toolWear:        document.getElementById('tool-wear'),
-  toolWearNum:     document.getElementById('tool-wear-num'),
+  toolWear: document.getElementById('tool-wear'),
+  toolWearNum: document.getElementById('tool-wear-num'),
   toolWearDisplay: document.getElementById('tool-wear-display'),
 
   // Computed feature displays
-  cTempDiff:  document.getElementById('c-temp-diff'),
-  cPower:     document.getElementById('c-power'),
-  cTorqueWear:document.getElementById('c-torque-wear'),
-  cTypeEnc:   document.getElementById('c-type-enc'),
+  cTempDiff: document.getElementById('c-temp-diff'),
+  cPower: document.getElementById('c-power'),
+  cTorqueWear: document.getElementById('c-torque-wear'),
+  cTypeEnc: document.getElementById('c-type-enc'),
 
   // Result areas
-  resultIdle:   document.getElementById('result-idle'),
+  resultIdle: document.getElementById('result-idle'),
   resultActive: document.getElementById('result-active'),
 
   // Gauge
-  gaugeArc:       document.getElementById('gauge-arc'),
+  gaugeArc: document.getElementById('gauge-arc'),
   gaugeValueText: document.getElementById('gauge-value-text'),
 
   // Status
   statusIconWrap: document.getElementById('status-icon-wrap'),
-  statusLabel:    document.getElementById('status-label'),
-  statusDesc:     document.getElementById('status-desc'),
+  statusLabel: document.getElementById('status-label'),
+  statusDesc: document.getElementById('status-desc'),
 
   // Probability bars
-  barNormal:  document.getElementById('bar-normal'),
+  barNormal: document.getElementById('bar-normal'),
   barFailure: document.getElementById('bar-failure'),
-  pctNormal:  document.getElementById('pct-normal'),
+  pctNormal: document.getElementById('pct-normal'),
   pctFailure: document.getElementById('pct-failure'),
 };
 
@@ -92,7 +92,7 @@ function bindSlider(slider, numInput, displayEl, unit, decimals = 1) {
     if (isNaN(v)) return;
     v = Math.max(min, Math.min(max, v));
     numInput.value = v.toFixed(decimals);
-    slider.value   = v;
+    slider.value = v;
     if (displayEl) displayEl.textContent = fmt(v);
     updateComputedFeatures();
     updateSliderBackground(slider);
@@ -100,7 +100,7 @@ function bindSlider(slider, numInput, displayEl, unit, decimals = 1) {
 
   slider.addEventListener('input', onSliderChange);
   numInput.addEventListener('input', onNumChange);
-  numInput.addEventListener('blur',  onNumChange); // re-clamp on blur
+  numInput.addEventListener('blur', onNumChange); // re-clamp on blur
 
   // Initialize background on page load
   updateSliderBackground(slider);
@@ -141,22 +141,22 @@ function initTypeSelector() {
 //  REAL-TIME COMPUTED FEATURES
 // ══════════════════════════════════════════════════════════════════
 function updateComputedFeatures() {
-  const airTemp   = parseFloat(refs.airTemp.value);
-  const procTemp  = parseFloat(refs.procTemp.value);
-  const rpm       = parseFloat(refs.rpm.value);
-  const torque    = parseFloat(refs.torque.value);
-  const toolWear  = parseFloat(refs.toolWear.value);
-  const machType  = refs.machineType.value;
+  const airTemp = parseFloat(refs.airTemp.value);
+  const procTemp = parseFloat(refs.procTemp.value);
+  const rpm = parseFloat(refs.rpm.value);
+  const torque = parseFloat(refs.torque.value);
+  const toolWear = parseFloat(refs.toolWear.value);
+  const machType = refs.machineType.value;
 
-  const tempDiff    = procTemp - airTemp;
-  const powerKW     = (torque * rpm) / 9550;
-  const torqueWear  = torque * toolWear;
+  const tempDiff = procTemp - airTemp;
+  const powerKW = (torque * rpm) / 9550;
+  const torqueWear = torque * toolWear;
   const typeEncoded = TYPE_ENCODING[machType] ?? 2;
 
-  setComputedValue(refs.cTempDiff,   tempDiff.toFixed(2) + ' K');
-  setComputedValue(refs.cPower,      powerKW.toFixed(3) + ' kW');
+  setComputedValue(refs.cTempDiff, tempDiff.toFixed(2) + ' K');
+  setComputedValue(refs.cPower, powerKW.toFixed(3) + ' kW');
   setComputedValue(refs.cTorqueWear, torqueWear.toFixed(2));
-  setComputedValue(refs.cTypeEnc,    `${machType} = ${typeEncoded}`);
+  setComputedValue(refs.cTypeEnc, `${machType} = ${typeEncoded}`);
 }
 
 /** Flash the value with a color change to signal update. */
@@ -179,9 +179,9 @@ function updateGauge(pct) {
 
   // Color gradient based on risk level
   let color;
-  if (pct < 25)       color = 'var(--accent-success)';
-  else if (pct < 55)  color = 'var(--accent-warning)';
-  else                color = 'var(--accent-danger)';
+  if (pct < 25) color = 'var(--accent-success)';
+  else if (pct < 55) color = 'var(--accent-warning)';
+  else color = 'var(--accent-danger)';
   refs.gaugeArc.style.stroke = color;
 }
 
@@ -207,7 +207,7 @@ const ICON_FAILURE = `
 function displayResult(data) {
   const isFailure = data.prediction === 1;
   const failurePct = data.probability_failure;
-  const normalPct  = data.probability_normal;
+  const normalPct = data.probability_normal;
 
   // Show active result, hide idle
   refs.resultIdle.classList.add('hidden');
@@ -219,7 +219,7 @@ function displayResult(data) {
 
   // Status label
   refs.statusLabel.textContent = isFailure ? 'FAILURE' : 'NORMAL';
-  refs.statusLabel.className   = 'status-label ' + (isFailure ? 'failure' : 'normal');
+  refs.statusLabel.className = 'status-label ' + (isFailure ? 'failure' : 'normal');
 
   refs.statusDesc.textContent = isFailure
     ? `Machine failure detected! (${failurePct.toFixed(1)}% risk)`
@@ -229,9 +229,9 @@ function displayResult(data) {
   setTimeout(() => updateGauge(failurePct), 80);
 
   // Probability bars
-  refs.barNormal.style.width  = normalPct  + '%';
+  refs.barNormal.style.width = normalPct + '%';
   refs.barFailure.style.width = failurePct + '%';
-  refs.pctNormal.textContent  = normalPct.toFixed(1)  + '%';
+  refs.pctNormal.textContent = normalPct.toFixed(1) + '%';
   refs.pctFailure.textContent = failurePct.toFixed(1) + '%';
 }
 
@@ -255,7 +255,7 @@ function showToast(message) {
 
 // GANTI URL DI BAWAH INI DENGAN URL HUGGING FACE SPACE-MU NANTI
 // Contoh: "https://username-predictmaint.hf.space"
-const API_URL = "https://huggingface.co/spaces/wafinn05/TubesUAS"; 
+const API_URL = "https://wafinn05-tubesuas.hf.space";
 
 async function handleSubmit(e) {
   e.preventDefault();
@@ -266,12 +266,12 @@ async function handleSubmit(e) {
   btn.querySelector('.btn-text').textContent = 'Running...';
 
   const payload = {
-    type:         refs.machineType.value,
-    air_temp:     parseFloat(refs.airTemp.value),
+    type: refs.machineType.value,
+    air_temp: parseFloat(refs.airTemp.value),
     process_temp: parseFloat(refs.procTemp.value),
-    rpm:          parseFloat(refs.rpm.value),
-    torque:       parseFloat(refs.torque.value),
-    tool_wear:    parseFloat(refs.toolWear.value),
+    rpm: parseFloat(refs.rpm.value),
+    torque: parseFloat(refs.torque.value),
+    tool_wear: parseFloat(refs.toolWear.value),
   };
 
   try {
@@ -304,10 +304,10 @@ async function handleSubmit(e) {
 // ══════════════════════════════════════════════════════════════════
 function init() {
   // Bind all sliders
-  bindSlider(refs.airTemp,  refs.airTempNum,  refs.airTempDisplay,  'K',   1);
-  bindSlider(refs.procTemp, refs.procTempNum, refs.procTempDisplay, 'K',   1);
-  bindSlider(refs.rpm,      refs.rpmNum,      refs.rpmDisplay,      'rpm', 0);
-  bindSlider(refs.torque,   refs.torqueNum,   refs.torqueDisplay,   'Nm',  1);
+  bindSlider(refs.airTemp, refs.airTempNum, refs.airTempDisplay, 'K', 1);
+  bindSlider(refs.procTemp, refs.procTempNum, refs.procTempDisplay, 'K', 1);
+  bindSlider(refs.rpm, refs.rpmNum, refs.rpmDisplay, 'rpm', 0);
+  bindSlider(refs.torque, refs.torqueNum, refs.torqueDisplay, 'Nm', 1);
   bindSlider(refs.toolWear, refs.toolWearNum, refs.toolWearDisplay, 'min', 0);
 
   // Machine type buttons
