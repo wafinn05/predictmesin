@@ -227,7 +227,7 @@ function showToast(message) {
 // FORM SUBMIT: API CALL
 
 // API URL.
-const API_URL = "https:// wafinn05-tubesuas.hf.space";
+const API_URL = "https://wafinn05-tubesuas.hf.space";
 
 async function handleSubmit(e) {
   e.preventDefault();
