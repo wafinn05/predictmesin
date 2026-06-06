@@ -12,9 +12,7 @@ const TYPE_ENCODING = { H: 0, L: 1, M: 2 };
 const GAUGE_RADIUS = 60;
 const GAUGE_CIRCUMFERENCE = 2 * Math.PI * GAUGE_RADIUS; // 376.99
 
-// ══════════════════════════════════════════════════════════════════
-//  DOM REFERENCES
-// ══════════════════════════════════════════════════════════════════
+// DOM REFERENCES
 const refs = {
   form: document.getElementById('prediction-form'),
   predictBtn: document.getElementById('predict-btn'),
@@ -56,9 +54,8 @@ const refs = {
   gaugeValueText: document.getElementById('gauge-value-text'),
 
   // Status
-  statusIconWrap: document.getElementById('status-icon-wrap'),
+  statusCard: document.getElementById('status-card-element'),
   statusLabel: document.getElementById('status-label'),
-  statusDesc: document.getElementById('status-desc'),
 
   // Probability bars
   barNormal: document.getElementById('bar-normal'),
@@ -67,9 +64,7 @@ const refs = {
   pctFailure: document.getElementById('pct-failure'),
 };
 
-// ══════════════════════════════════════════════════════════════════
-//  HELPER: Slider <-> Number Input Sync
-// ══════════════════════════════════════════════════════════════════
+// HELPER: Slider <-> Number Input Sync
 /**
  * Binds a range input, a number input, and an optional display span.
  * When either input changes, the other updates, and computed features refresh.
@@ -118,9 +113,7 @@ function updateSliderBackground(slider) {
     `linear-gradient(to right, var(--blue) 0%, var(--blue) ${pct}%, var(--border-sm) ${pct}%, var(--border-sm) 100%)`;
 }
 
-// ══════════════════════════════════════════════════════════════════
-//  HELPER: Machine Type Selector
-// ══════════════════════════════════════════════════════════════════
+// HELPER: Machine Type Selector
 function initTypeSelector() {
   const buttons = document.querySelectorAll('.type-btn');
   buttons.forEach(btn => {
@@ -137,9 +130,7 @@ function initTypeSelector() {
   });
 }
 
-// ══════════════════════════════════════════════════════════════════
-//  REAL-TIME COMPUTED FEATURES
-// ══════════════════════════════════════════════════════════════════
+// REAL-TIME COMPUTED FEATURES
 function updateComputedFeatures() {
   const airTemp = parseFloat(refs.airTemp.value);
   const procTemp = parseFloat(refs.procTemp.value);
@@ -169,9 +160,7 @@ function setComputedValue(el, value) {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════
-//  GAUGE UPDATE
-// ══════════════════════════════════════════════════════════════════
+// GAUGE UPDATE
 function updateGauge(pct) {
   const offset = GAUGE_CIRCUMFERENCE * (1 - pct / 100);
   refs.gaugeArc.style.strokeDashoffset = offset;
@@ -185,25 +174,10 @@ function updateGauge(pct) {
   refs.gaugeArc.style.stroke = color;
 }
 
-// ══════════════════════════════════════════════════════════════════
-//  ICONS
-// ══════════════════════════════════════════════════════════════════
-const ICON_NORMAL = `
-  <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-    <polyline points="22 4 12 14.01 9 11.01"/>
-  </svg>`;
+// ICONS
 
-const ICON_FAILURE = `
-  <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-danger)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <circle cx="12" cy="12" r="10"/>
-    <line x1="15" y1="9" x2="9" y2="15"/>
-    <line x1="9" y1="9" x2="15" y2="15"/>
-  </svg>`;
 
-// ══════════════════════════════════════════════════════════════════
-//  DISPLAY PREDICTION RESULT
-// ══════════════════════════════════════════════════════════════════
+// DISPLAY PREDICTION RESULT
 function displayResult(data) {
   const isFailure = data.prediction === 1;
   const failurePct = data.probability_failure;
@@ -213,17 +187,20 @@ function displayResult(data) {
   refs.resultIdle.classList.add('hidden');
   refs.resultActive.classList.remove('hidden');
 
-  // Status icon
-  refs.statusIconWrap.innerHTML = isFailure ? ICON_FAILURE : ICON_NORMAL;
-  refs.statusIconWrap.className = 'status-icon-wrap ' + (isFailure ? 'failure-state' : 'normal-state');
-
   // Status label
   refs.statusLabel.textContent = isFailure ? 'FAILURE' : 'NORMAL';
   refs.statusLabel.className = 'status-label ' + (isFailure ? 'failure' : 'normal');
 
-  refs.statusDesc.textContent = isFailure
-    ? `Machine failure detected! (${failurePct.toFixed(1)}% risk)`
-    : `Machine operating normally (${normalPct.toFixed(1)}% confidence)`;
+  // Status card background
+  if (isFailure) {
+    refs.statusCard.classList.add('is-failure');
+    refs.statusCard.classList.remove('is-normal');
+  } else {
+    refs.statusCard.classList.add('is-normal');
+    refs.statusCard.classList.remove('is-failure');
+  }
+
+
 
   // Gauge — animate after small delay for visual impact
   setTimeout(() => updateGauge(failurePct), 80);
@@ -235,9 +212,7 @@ function displayResult(data) {
   refs.pctFailure.textContent = failurePct.toFixed(1) + '%';
 }
 
-// ══════════════════════════════════════════════════════════════════
-//  ERROR TOAST
-// ══════════════════════════════════════════════════════════════════
+// ERROR TOAST
 function showToast(message) {
   const existing = document.querySelector('.toast');
   if (existing) existing.remove();
@@ -249,13 +224,10 @@ function showToast(message) {
   setTimeout(() => toast.remove(), 4000);
 }
 
-// ══════════════════════════════════════════════════════════════════
-//  FORM SUBMIT: API CALL
-// ══════════════════════════════════════════════════════════════════
+// FORM SUBMIT: API CALL
 
-// GANTI URL DI BAWAH INI DENGAN URL HUGGING FACE SPACE-MU NANTI
-// Contoh: "https://username-predictmaint.hf.space"
-const API_URL = "https://wafinn05-tubesuas.hf.space";
+// API URL.
+const API_URL = "https:// wafinn05-tubesuas.hf.space";
 
 async function handleSubmit(e) {
   e.preventDefault();
@@ -299,9 +271,52 @@ async function handleSubmit(e) {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════════════════════════
+// PWA & FULLSCREEN LOGIC
+function registerServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(registration => {
+          console.log('SW registered: ', registration.scope);
+        })
+        .catch(err => {
+          console.log('SW registration failed: ', err);
+        });
+    });
+  }
+}
+
+function initFullscreen() {
+  const fsBtn = document.getElementById('fullscreen-btn');
+  const iconEnter = document.getElementById('fs-icon-enter');
+  const iconExit = document.getElementById('fs-icon-exit');
+
+  if (!fsBtn) return;
+
+  fsBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.log(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  });
+
+  document.addEventListener('fullscreenchange', () => {
+    if (document.fullscreenElement) {
+      iconEnter.classList.add('hidden');
+      iconExit.classList.remove('hidden');
+    } else {
+      iconEnter.classList.remove('hidden');
+      iconExit.classList.add('hidden');
+    }
+  });
+}
+
+// INIT
 function init() {
   // Bind all sliders
   bindSlider(refs.airTemp, refs.airTempNum, refs.airTempDisplay, 'K', 1);
@@ -309,6 +324,10 @@ function init() {
   bindSlider(refs.rpm, refs.rpmNum, refs.rpmDisplay, 'rpm', 0);
   bindSlider(refs.torque, refs.torqueNum, refs.torqueDisplay, 'Nm', 1);
   bindSlider(refs.toolWear, refs.toolWearNum, refs.toolWearDisplay, 'min', 0);
+
+  // PWA & Fullscreen
+  registerServiceWorker();
+  initFullscreen();
 
   // Machine type buttons
   initTypeSelector();

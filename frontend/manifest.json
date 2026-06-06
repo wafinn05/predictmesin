@@ -1,0 +1,17 @@
+{
+  "name": "PredictMaint Dashboard",
+  "short_name": "PredictMaint",
+  "description": "Industrial Machine Failure Prediction System",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f1f5f9",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "icons/icon.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
